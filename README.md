@@ -12,7 +12,7 @@ Features AI chatbot, real-time visitor tracking, contact form with email, and a 
 [![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com)
 [![Render](https://img.shields.io/badge/Deployed%20on-Render-blue?style=for-the-badge&logo=render)](https://render.com)
 
-**[🌐 Live Demo](https://your-vercel-url.vercel.app)** • **[📧 Contact](mailto:abdulkhalilmohammadi472@gmail.com)**
+**[🌐 Live Demo](https://abdulkhalil.vercel.app)** • **[📧 Contact](mailto:abdulkhalilmohammadi472@gmail.com)**
 
 </div>
 
