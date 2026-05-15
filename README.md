@@ -169,7 +169,7 @@ Abdul Khalil Mohammadi
 
 - 📧 abdulkhalilmohammadi472@gmail.com
 - 🐙 github.com/Abdulkhalil99
-- 🌐 your-vercel-url.vercel.app
+- 🌐 https://abdulkhalil.vercel.app
 
 ---
 
