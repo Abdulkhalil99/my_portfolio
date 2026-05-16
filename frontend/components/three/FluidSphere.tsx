@@ -1,13 +1,21 @@
 'use client'
 
-import { useRef, type ComponentRef } from 'react'
+import { useRef, type ForwardRefExoticComponent, type RefAttributes } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { MeshDistortMaterial, Sphere } from '@react-three/drei'
 import * as THREE from 'three'
 
+type RefTarget<T> = T extends ForwardRefExoticComponent<infer Props>
+  ? Props extends RefAttributes<infer Ref>
+    ? Ref
+    : never
+  : never
+
+type DistortMaterialRef = RefTarget<typeof MeshDistortMaterial>
+
 export function FluidSphere() {
   const meshRef    = useRef<THREE.Mesh>(null)
-  const materialRef = useRef<ComponentRef<typeof MeshDistortMaterial>>(null)
+  const materialRef = useRef<DistortMaterialRef>(null)
 
   useFrame(({ clock }) => {
     if (!meshRef.current) return
