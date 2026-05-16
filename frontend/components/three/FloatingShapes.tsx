@@ -1,160 +1,104 @@
 'use client'
 
 import { useRef, useMemo } from 'react'
-import { useFrame }        from '@react-three/fiber'
+import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-/*
-  useFrame = runs every animation frame (60 times per second)
-  Like requestAnimationFrame but for Three.js.
 
-  We use it to:
-  - Rotate objects
-  - Move objects up and down (floating effect)
-  - Change colors over time
-*/
-
-// ========================
-// FLOATING BOX
-// ========================
-interface FloatingBoxProps {
-  position: [number, number, number]
-  size?:    [number, number, number]
-  color?:   string
-  speed?:   number
-  rotationSpeed?: number
-}
-
-export function FloatingBox({
-  position,
-  size    = [1, 1, 1],
-  color   = '#7c3aed',
-  speed   = 1,
-  rotationSpeed = 0.5,
-}: FloatingBoxProps) {
-  const meshRef = useRef<THREE.Mesh>(null)
-
-  /*
-    useMemo = calculate once, reuse every frame.
-    We use a random offset so each shape floats
-    at a different phase — they do not all move together.
-  */
-  const offset = useMemo(() => Math.random() * Math.PI * 2, [])
-
-  useFrame(({ clock }) => {
-    if (!meshRef.current) return
-
-    const t = clock.getElapsedTime()
-
-    // Float up and down using sine wave
-    // Math.sin goes from -1 to 1 smoothly
-    meshRef.current.position.y =
-      position[1] + Math.sin(t * speed + offset) * 0.3
-
-    // Rotate on multiple axes
-    meshRef.current.rotation.x += 0.003 * rotationSpeed
-    meshRef.current.rotation.y += 0.005 * rotationSpeed
-  })
-
-  return (
-    <mesh ref={meshRef} position={position}>
-      <boxGeometry args={size} />
-      <meshStandardMaterial
-        color={color}
-        transparent
-        opacity={0.15}
-        wireframe={false}
-        roughness={0.1}
-        metalness={0.8}
-      />
-    </mesh>
-  )
-}
-
-// ========================
-// FLOATING TORUS (donut shape)
-// ========================
-interface FloatingTorusProps {
+interface ShapeProps {
   position:      [number, number, number]
   color?:        string
   speed?:        number
   rotationSpeed?: number
+  scale?:        number
+}
+
+export function FloatingBox({
+  position,
+  color = '#7c3aed',
+  speed = 1,
+  rotationSpeed = 0.5,
+  scale = 1,
+}: ShapeProps) {
+  const ref    = useRef<THREE.Mesh>(null)
+  const offset = useMemo(() => Math.random() * Math.PI * 2, [])
+
+  useFrame(({ clock }) => {
+    if (!ref.current) return
+    const t = clock.getElapsedTime()
+    ref.current.position.y = position[1] + Math.sin(t * speed + offset) * 0.3
+    ref.current.rotation.x += 0.003 * rotationSpeed
+    ref.current.rotation.y += 0.005 * rotationSpeed
+    ref.current.rotation.z += 0.002 * rotationSpeed
+  })
+
+  return (
+    <mesh ref={ref} position={position} scale={scale}>
+      <boxGeometry args={[0.6, 0.6, 0.6]} />
+      <meshStandardMaterial
+        color={color}
+        transparent
+        opacity={0.15}
+        roughness={0.1}
+        metalness={0.9}
+        wireframe={false}
+      />
+    </mesh>
+  )
 }
 
 export function FloatingTorus({
   position,
   color = '#3b82f6',
   speed = 0.8,
-  rotationSpeed = 0.3,
-}: FloatingTorusProps) {
-  const meshRef = useRef<THREE.Mesh>(null)
-  const offset  = useMemo(() => Math.random() * Math.PI * 2, [])
+  rotationSpeed = 0.4,
+  scale = 1,
+}: ShapeProps) {
+  const ref    = useRef<THREE.Mesh>(null)
+  const offset = useMemo(() => Math.random() * Math.PI * 2, [])
 
   useFrame(({ clock }) => {
-    if (!meshRef.current) return
+    if (!ref.current) return
     const t = clock.getElapsedTime()
-
-    meshRef.current.position.y =
-      position[1] + Math.sin(t * speed + offset) * 0.4
-
-    meshRef.current.rotation.x += 0.004 * rotationSpeed
-    meshRef.current.rotation.z += 0.003 * rotationSpeed
+    ref.current.position.y = position[1] + Math.sin(t * speed + offset) * 0.4
+    ref.current.rotation.x += 0.004 * rotationSpeed
+    ref.current.rotation.z += 0.003 * rotationSpeed
   })
 
   return (
-    <mesh ref={meshRef} position={position}>
-      {/*
-        torusGeometry args:
-        [radius, tube, radialSegments, tubularSegments]
-
-        radius = size of the donut
-        tube   = thickness of the ring
-        segments = how smooth it looks (higher = smoother)
-      */}
-      <torusGeometry args={[0.6, 0.2, 16, 40]} />
+    <mesh ref={ref} position={position} scale={scale}>
+      <torusGeometry args={[0.5, 0.15, 16, 50]} />
       <meshStandardMaterial
         color={color}
         transparent
         opacity={0.2}
-        roughness={0.1}
-        metalness={0.9}
+        roughness={0.05}
+        metalness={1}
       />
     </mesh>
   )
-}
-
-// ========================
-// FLOATING OCTAHEDRON (diamond shape)
-// ========================
-interface FloatingOctahedronProps {
-  position: [number, number, number]
-  color?:   string
-  speed?:   number
-  scale?:   number
 }
 
 export function FloatingOctahedron({
   position,
   color = '#06b6d4',
   speed = 1.2,
+  rotationSpeed = 0.6,
   scale = 1,
-}: FloatingOctahedronProps) {
-  const meshRef = useRef<THREE.Mesh>(null)
-  const offset  = useMemo(() => Math.random() * Math.PI * 2, [])
+}: ShapeProps) {
+  const ref    = useRef<THREE.Mesh>(null)
+  const offset = useMemo(() => Math.random() * Math.PI * 2, [])
 
   useFrame(({ clock }) => {
-    if (!meshRef.current) return
+    if (!ref.current) return
     const t = clock.getElapsedTime()
-
-    meshRef.current.position.y =
-      position[1] + Math.sin(t * speed + offset) * 0.35
-
-    // Spin on Y axis
-    meshRef.current.rotation.y += 0.008 * speed
+    ref.current.position.y = position[1] + Math.sin(t * speed + offset) * 0.35
+    ref.current.rotation.y += 0.008 * rotationSpeed
+    ref.current.rotation.x += 0.003 * rotationSpeed
   })
 
   return (
-    <mesh ref={meshRef} position={position} scale={scale}>
-      <octahedronGeometry args={[0.5]} />
+    <mesh ref={ref} position={position} scale={scale}>
+      <octahedronGeometry args={[0.4]} />
       <meshStandardMaterial
         color={color}
         transparent
@@ -166,39 +110,59 @@ export function FloatingOctahedron({
   )
 }
 
-// ========================
-// WIREFRAME SPHERE
-// ========================
-interface WireframeSphereProps {
-  position: [number, number, number]
-  radius?:  number
-  color?:   string
-  speed?:   number
+export function FloatingIcosahedron({
+  position,
+  color = '#7c3aed',
+  speed = 0.9,
+  rotationSpeed = 0.3,
+  scale = 1,
+}: ShapeProps) {
+  const ref    = useRef<THREE.Mesh>(null)
+  const offset = useMemo(() => Math.random() * Math.PI * 2, [])
+
+  useFrame(({ clock }) => {
+    if (!ref.current) return
+    const t = clock.getElapsedTime()
+    ref.current.position.y = position[1] + Math.sin(t * speed + offset) * 0.3
+    ref.current.rotation.y += 0.005 * rotationSpeed
+    ref.current.rotation.z += 0.004 * rotationSpeed
+  })
+
+  return (
+    <mesh ref={ref} position={position} scale={scale}>
+      <icosahedronGeometry args={[0.4, 0]} />
+      <meshStandardMaterial
+        color={color}
+        transparent
+        opacity={0.2}
+        roughness={0.1}
+        metalness={0.9}
+        wireframe={false}
+      />
+    </mesh>
+  )
 }
 
 export function WireframeSphere({
   position,
-  radius = 1,
-  color  = '#7c3aed',
-  speed  = 0.5,
-}: WireframeSphereProps) {
-  const meshRef = useRef<THREE.Mesh>(null)
-  const offset  = useMemo(() => Math.random() * Math.PI * 2, [])
+  color = '#7c3aed',
+  speed = 0.4,
+  scale = 1,
+}: ShapeProps) {
+  const ref    = useRef<THREE.Mesh>(null)
+  const offset = useMemo(() => Math.random() * Math.PI * 2, [])
 
   useFrame(({ clock }) => {
-    if (!meshRef.current) return
+    if (!ref.current) return
     const t = clock.getElapsedTime()
-
-    meshRef.current.position.y =
-      position[1] + Math.sin(t * speed + offset) * 0.2
-
-    meshRef.current.rotation.y += 0.003
-    meshRef.current.rotation.z += 0.002
+    ref.current.position.y = position[1] + Math.sin(t * speed + offset) * 0.2
+    ref.current.rotation.y += 0.002
+    ref.current.rotation.z += 0.001
   })
 
   return (
-    <mesh ref={meshRef} position={position}>
-      <sphereGeometry args={[radius, 12, 12]} />
+    <mesh ref={ref} position={position} scale={scale}>
+      <sphereGeometry args={[0.8, 16, 16]} />
       <meshStandardMaterial
         color={color}
         transparent
@@ -209,60 +173,41 @@ export function WireframeSphere({
   )
 }
 
-// ========================
-// PARTICLE FIELD
-// Hundreds of tiny floating dots
-// ========================
-interface ParticleFieldProps {
+export function ParticleField({
+  count = 100,
+  color = '#7c3aed',
+}: {
   count?: number
   color?: string
-}
+}) {
+  const ref = useRef<THREE.Points>(null)
 
-export function ParticleField({
-  count = 80,
-  color = '#7c3aed',
-}: ParticleFieldProps) {
-  const pointsRef = useRef<THREE.Points>(null)
-
-  /*
-    We generate random positions for all particles once.
-    useMemo = only runs once, not every frame.
-
-    Float32Array = typed array (faster than normal array for 3D)
-    Each particle needs 3 values: x, y, z
-  */
   const positions = useMemo(() => {
     const arr = new Float32Array(count * 3)
     for (let i = 0; i < count; i++) {
-      arr[i * 3 + 0] = (Math.random() - 0.5) * 20  // x: -10 to 10
-      arr[i * 3 + 1] = (Math.random() - 0.5) * 20  // y: -10 to 10
-      arr[i * 3 + 2] = (Math.random() - 0.5) * 10  // z: -5 to 5
+      arr[i * 3]     = (Math.random() - 0.5) * 20
+      arr[i * 3 + 1] = (Math.random() - 0.5) * 20
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 10
     }
     return arr
   }, [count])
 
   useFrame(({ clock }) => {
-    if (!pointsRef.current) return
-    // Slowly rotate the entire particle field
-    pointsRef.current.rotation.y = clock.getElapsedTime() * 0.02
-    pointsRef.current.rotation.x = clock.getElapsedTime() * 0.01
+    if (!ref.current) return
+    ref.current.rotation.y = clock.getElapsedTime() * 0.01
   })
 
   return (
-    <points ref={pointsRef}>
+    <points ref={ref}>
       <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          args={[positions, 3]}
-        />
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
       <pointsMaterial
         color={color}
-        size={0.05}
+        size={0.04}
         transparent
-        opacity={0.4}
-        sizeAttenuation={true}
-        // sizeAttenuation = farther particles appear smaller (realistic)
+        opacity={0.5}
+        sizeAttenuation
       />
     </points>
   )

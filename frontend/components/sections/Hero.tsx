@@ -4,31 +4,16 @@ import { useRef } from 'react'
 import Link from 'next/link'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, MapPin } from 'lucide-react'
+import dynamic from 'next/dynamic'
 import { Button } from '@/components/ui/Button'
 import { Badge }  from '@/components/ui/Badge'
 import { cn }     from '@/lib/utils'
 import { SITE_CONFIG } from '@/lib/constants'
-import { staggerContainer, fadeInUp, fadeIn } from '@/lib/animations'
-
-/*
-  We load HeroScene with dynamic import.
-
-  WHY?
-  Three.js is a large library (~600kb).
-  We do not want it to block the initial page load.
-
-  dynamic() = load this component only when needed
-  ssr: false = do not try to render 3D on the server
-               (Three.js needs the browser's WebGL)
-*/
-import dynamic from 'next/dynamic'
+import { staggerContainer, fadeInUp, fadeIn, slideInFromBottom } from '@/lib/animations'
 
 const HeroScene = dynamic(
   () => import('@/components/three/HeroScene').then(m => m.HeroScene),
-  {
-    ssr:     false,    // WebGL only works in browser
-    loading: () => null, // show nothing while loading
-  }
+  { ssr: false, loading: () => null }
 )
 
 export function Hero() {
@@ -39,60 +24,33 @@ export function Hero() {
     offset: ['start start', 'end start'],
   })
 
-  const y       = useTransform(scrollYProgress, [0, 1], ['0px', '100px'])
-  const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
+  const y       = useTransform(scrollYProgress, [0, 1], ['0px', '150px'])
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
+  const scale   = useTransform(scrollYProgress, [0, 0.5], [1, 0.95])
 
   return (
     <section
       ref={containerRef}
-      className={cn(
-        'relative min-h-screen',
-        'flex items-center justify-center',
-        'overflow-hidden pt-16',
-      )}
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16"
     >
-
-      {/* ==============================
-          3D BACKGROUND SCENE
-          Rendered behind everything
-      ============================== */}
+      {/* 3D Scene */}
       <HeroScene />
 
-      {/* ==============================
-          GRADIENT OVERLAYS
-          These sit on top of 3D but
-          behind the text content
-      ============================== */}
+      {/* Gradient overlays */}
       <div aria-hidden className="absolute inset-0 -z-[5] pointer-events-none">
-        {/* Top glow */}
-        <div className={cn(
-          'absolute top-0 left-1/2 -translate-x-1/2',
-          'h-[500px] w-[800px]',
-          'bg-[radial-gradient(ellipse_at_top,hsl(var(--violet)/0.15),transparent_70%)]',
-        )} />
-
-        {/* Bottom fade — makes 3D blend into page */}
-        <div className={cn(
-          'absolute bottom-0 left-0 right-0 h-48',
-          'bg-gradient-to-t from-[hsl(var(--bg-base))] to-transparent',
-        )} />
-
-        {/* Side fades */}
-        <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[hsl(var(--bg-base))] to-transparent" />
-        <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-[hsl(var(--bg-base))] to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-[hsl(var(--bg-base))] to-transparent" />
+        <div className="absolute inset-y-0 left-0  w-24 bg-gradient-to-r from-[hsl(var(--bg-base))] to-transparent" />
+        <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[hsl(var(--bg-base))] to-transparent" />
       </div>
 
-      {/* ==============================
-          HERO CONTENT
-          Normal HTML on top of 3D
-      ============================== */}
+      {/* Content */}
       <motion.div
-        style={{ y, opacity }}
+        style={{ y, opacity, scale }}
         className="relative z-10 w-full"
       >
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <motion.div
-            variants={staggerContainer(0.12, 0.1)}
+            variants={staggerContainer(0.12, 0.2)}
             initial="hidden"
             animate="show"
             className="flex flex-col items-center text-center"
@@ -100,47 +58,30 @@ export function Hero() {
 
             {/* Available badge */}
             <motion.div variants={fadeInUp} className="mb-8">
-              {SITE_CONFIG.available ? (
-                <div className={cn(
-                  'inline-flex items-center gap-2',
-                  'px-4 py-2 rounded-full',
-                  'glass border border-[hsl(var(--emerald)/0.25)]',
-                  'text-xs font-medium text-[hsl(var(--emerald))]',
-                )}>
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[hsl(var(--emerald))] opacity-75" />
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-[hsl(var(--emerald))]" />
-                  </span>
-                  Available for new projects
-                </div>
-              ) : (
-                <div className={cn(
-                  'inline-flex items-center gap-2 px-4 py-2 rounded-full',
-                  'glass border border-[hsl(var(--border-default))]',
-                  'text-xs font-medium text-[hsl(var(--text-muted))]',
-                )}>
-                  <span className="h-2 w-2 rounded-full bg-[hsl(var(--text-muted))]" />
-                  Currently unavailable
-                </div>
-              )}
+              <div className={cn(
+                'inline-flex items-center gap-2 px-4 py-2 rounded-full',
+                'glass border border-[hsl(var(--emerald)/0.3)]',
+                'text-xs font-medium text-[hsl(var(--emerald))]',
+              )}>
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[hsl(var(--emerald))] opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-[hsl(var(--emerald))]" />
+                </span>
+                Available for new projects
+              </div>
             </motion.div>
 
-            {/* Main title */}
-            <motion.div variants={fadeInUp} className="mb-6">
+            {/* Title */}
+            <motion.div variants={slideInFromBottom} className="mb-6">
               <h1 className="text-balance">
-                <span className="block text-[hsl(var(--text-secondary))] text-2xl sm:text-3xl font-normal mb-2">
+                <span className="block text-[hsl(var(--text-secondary))] text-2xl sm:text-3xl font-normal mb-3">
                   Hi, I am{' '}
                   <span className="text-[hsl(var(--text-primary))] font-semibold">
                     {SITE_CONFIG.firstName}
                   </span>{' '}
                   <motion.span
                     animate={{ rotate: [0, 20, -10, 20, 0] }}
-                    transition={{
-                      duration:    1.5,
-                      delay:       1.5,
-                      repeat:      Infinity,
-                      repeatDelay: 3,
-                    }}
+                    transition={{ duration: 1.5, delay: 2, repeat: Infinity, repeatDelay: 4 }}
                     style={{ display: 'inline-block' }}
                   >
                     👋
@@ -155,12 +96,7 @@ export function Hero() {
             {/* Description */}
             <motion.p
               variants={fadeInUp}
-              className={cn(
-                'mb-10 max-w-2xl',
-                'text-lg sm:text-xl',
-                'text-[hsl(var(--text-secondary))]',
-                'text-balance leading-relaxed',
-              )}
+              className="mb-10 max-w-2xl text-lg sm:text-xl text-[hsl(var(--text-secondary))] text-balance leading-relaxed"
             >
               {SITE_CONFIG.description}
             </motion.p>
@@ -174,17 +110,13 @@ export function Hero() {
                 variant="primary"
                 size="lg"
                 rightIcon={<ArrowRight className="h-5 w-5" />}
-                onClick={() => {
-                  document.getElementById('projects')?.scrollIntoView({
-                    behavior: 'smooth',
-                  })
-                }}
+                onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
               >
                 View My Work
               </Button>
               <Link href="/contact">
                 <Button variant="glass" size="lg">
-                  Let us Talk
+                  Lets Talk
                 </Button>
               </Link>
             </motion.div>
@@ -217,16 +149,20 @@ export function Hero() {
               </div>
             </motion.div>
 
-            {/* Tech stack badges */}
-            <motion.div
-              variants={fadeIn}
-              className="flex flex-wrap justify-center gap-2"
-            >
+            {/* Tech badges */}
+            <motion.div variants={fadeIn} className="flex flex-wrap justify-center gap-2">
               <span className="text-xs text-[hsl(var(--text-muted))] self-center mr-2">
                 Built with:
               </span>
-              {['Next.js', 'TypeScript', 'Node.js', 'PostgreSQL', 'Three.js'].map(tech => (
-                <Badge key={tech} variant="default">{tech}</Badge>
+              {['Next.js', 'TypeScript', 'Node.js', 'PostgreSQL', 'Three.js'].map((tech, i) => (
+                <motion.div
+                  key={tech}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1.5 + i * 0.1, duration: 0.4 }}
+                >
+                  <Badge variant="default">{tech}</Badge>
+                </motion.div>
               ))}
             </motion.div>
 
@@ -239,7 +175,7 @@ export function Hero() {
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 1 }}
+        transition={{ delay: 2.5, duration: 1 }}
       >
         <motion.div
           animate={{ y: [0, 8, 0] }}
@@ -249,11 +185,7 @@ export function Hero() {
           <span className="text-[10px] uppercase tracking-widest text-[hsl(var(--text-muted))]">
             Scroll
           </span>
-          <div className={cn(
-            'h-10 w-5 rounded-full',
-            'border border-[hsl(var(--border-strong))]',
-            'flex items-start justify-center p-1',
-          )}>
+          <div className="h-10 w-5 rounded-full border border-[hsl(var(--border-strong))] flex items-start justify-center p-1">
             <motion.div
               animate={{ y: [0, 14, 0] }}
               transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
