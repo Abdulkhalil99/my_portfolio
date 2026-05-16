@@ -20,7 +20,6 @@ export function FluidSphere() {
   useFrame(({ clock }) => {
     if (!meshRef.current) return
     const t = clock.getElapsedTime()
-
     // Breathe in and out
     meshRef.current.scale.setScalar(1 + Math.sin(t * 0.5) * 0.05)
 
