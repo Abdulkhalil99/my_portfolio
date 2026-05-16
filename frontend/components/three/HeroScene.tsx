@@ -2,7 +2,7 @@
 
 import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { PerspectiveCamera, Environment } from '@react-three/drei'
+import { PerspectiveCamera } from '@react-three/drei'
 import { Galaxy } from './Galaxy'
 import { FluidSphere, FluidSphereWireframe } from './FluidSphere'
 import {
