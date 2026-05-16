@@ -1,13 +1,13 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, type ComponentRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { MeshDistortMaterial, Sphere } from '@react-three/drei'
 import * as THREE from 'three'
 
 export function FluidSphere() {
   const meshRef    = useRef<THREE.Mesh>(null)
-  const materialRef = useRef<any>(null)
+  const materialRef = useRef<ComponentRef<typeof MeshDistortMaterial>>(null)
 
   useFrame(({ clock }) => {
     if (!meshRef.current) return
