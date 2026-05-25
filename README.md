@@ -167,7 +167,7 @@ MIT License — free to use as inspiration for your own portfolio.
 
 Abdul Khalil Mohammadi
 
-- 📧 abdulkhalilmohammadi472@gmail.com
+- 📧 mohammadiabdulkhalil99@gmail.com
 - 🐙 github.com/Abdulkhalil99
 - 🌐 https://abdulkhalil.vercel.app
 
